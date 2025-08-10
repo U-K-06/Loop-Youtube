@@ -8,7 +8,16 @@ h1,h2{
   color: #FF007F;
   text-align: center;
 }
-
+ul {
+  font-weight: bold;
+  font-size: 1rem;
+  list-style: none;
+  color: #00FFF7;
+  display: flex;
+  flex-direction: column;
+  gap:0.4rem;
+  justify-content:left;
+}
 button {
   background-color: #FF007F;
   color: #ffffff;
@@ -62,4 +71,10 @@ background-color: #00FFF7;
     display: flex;
     flex-direction: row;
     gap: 1rem;
+}
+#save-button
+{
+  margin-top: 2rem;
+  display: flex;
+  justify-self: center;
 }

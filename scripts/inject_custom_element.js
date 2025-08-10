@@ -20,6 +20,8 @@ function waitForElement(selector) {
     observer.observe(document.body, { childList: true, subtree: true });
   });
 }
+
+
 const videoPromise = waitForElement('video.html5-main-video')
 function apply_time_stamps(video)
 {
@@ -123,14 +125,15 @@ async function addCustomContextMenuItem() {
     }
   });
 }
+const title = document.title
+const id = new URL(window.location.href).searchParams.get('v')
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "runExtension") {
-    chrome.runtime.sendMessage({ reloadPage: true });
+    chrome.runtime.sendMessage({ reloadPage: true , popup:"activated"});
   }
 
-  if (message.action === "updateUI" || message.activated) {
-    addCustomContextMenuItem();
-    chrome.runtime.sendMessage({activated:true})
+  if (message.action === "updateUI") {
+    addCustomContextMenuItem()
   }
 });
-
+z
