@@ -133,7 +133,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.action === "updateUI") {
+    chrome.storage.local.set({"second_time":true})
     addCustomContextMenuItem()
   }
 });
-z
+

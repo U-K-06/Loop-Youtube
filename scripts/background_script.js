@@ -18,3 +18,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // chrome.tabs.onRemoved.addListener((tabId) => {
 //   chrome.storage.session.remove("buttonPressed");
 // });
+
+chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+  if (tabs.length === 0) return;
+  const activeTabId = tabs[0].id;
+  chrome.tabs.onRemoved.addListener(function(removedTabId, removeInfo) {
+    if (removedTabId === activeTabId) {
+      chrome.storage.local.remove('second_time')
+    }
+  });
+});
