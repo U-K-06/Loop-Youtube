@@ -22,18 +22,7 @@ function waitForElement(selector) {
 }
 
 
-const videoPromise = waitForElement('video.html5-main-video')
-function apply_time_stamps(video)
-{
-  if(data.video_timing_data.video_loop_end_time){
-
-  
-    if(video.currentTime > data.video_timing_data.video_loop_end_time)
-    {
-      video.currentTime = data.video_timing_data.video_loop_start_time
-    }
-  }}
-function set_timestamps(video)
+function apply_timestamps(video,start_time,end_time)
 {
     //   "video_timing_data":{
     //     "number" : "1",
@@ -41,17 +30,15 @@ function set_timestamps(video)
     //     "video_loop_end_time":"",
     //     "video_max_time": ""
     // }
-  data.video_timing_data.video_loop_start_time = video.currentTime
-  data.video_timing_data.video_max_time = video.duration
-  video.addEventListener("seeked",()=>{
-    console.log("Seeked at: ",video.currentTime)
-    data.video_timing_data.video_loop_end_time = video.currentTime
-  })
-
-
-
-
-}
+    video.currentTime = start_time
+    const video_interval = setInterval(()=>{
+      if(video.currentTime >= end_time)
+      {
+        video.currentTime = start_time
+      }
+    },100)
+    return video_interval
+  }
 function waitForVisibleElement(selector, timeout = 5000) {
   return new Promise((resolve, reject) => {
     function check() {
@@ -79,6 +66,7 @@ async function addCustomContextMenuItem() {
       if (!panelMenu) return;
 
       const customMenuItem = document.createElement('div');
+      customMenuItem.id = 'custom-loop'
       customMenuItem.className = 'ytp-menuitem custom-loop-item';
       customMenuItem.setAttribute('role', 'menuitemcheckbox');
       customMenuItem.setAttribute('aria-checked', 'false');
@@ -107,34 +95,43 @@ async function addCustomContextMenuItem() {
       customMenuItem.addEventListener('click', () => {
         const isChecked = customMenuItem.getAttribute('aria-checked') === 'true';
         customMenuItem.setAttribute('aria-checked', !isChecked);
-        videoPromise.then((video)=>{
-          set_timestamps(video);
-          setInterval(()=>{
-            apply_time_stamps(video)
-          },100)
-        })
-        console.log(data)
       });
 
       panelMenu.appendChild(customMenuItem);
       panelMenu.removeChild(Array.from(panelMenu.children)[0])
       console.log("Custom menu item added.");
-
     } catch (e) {
       console.warn(e);
     }
   });
 }
-const title = document.title
-const id = new URL(window.location.href).searchParams.get('v')
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+
+chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "runExtension") {
     chrome.runtime.sendMessage({ reloadPage: true , popup:"activated"});
   }
 
   if (message.action === "updateUI") {
-    chrome.storage.local.set({"second_time":true})
+    const title = document.title
+    const id = new URL(window.location.href).searchParams.get('v')
+    chrome.storage.local.set({"second_time":true,"id":id,"title":title})
     addCustomContextMenuItem()
+  }
+  if(message.timestamps)
+  {
+    let isClicked = false;
+    console.log('WHY YOU DO THSI');
+    waitForElement('video.html5-main-video').then((video) => {
+      waitForElement('#custom-loop').then((custom_loop) => {
+        custom_loop.addEventListener('click', () => {
+          isClicked = !isClicked;
+          console.log('YOU PROMISED');
+          console.log(video);
+          console.log('ACTIVATEDDDDDD');
+          apply_timestamps(video, message.timestamps.start, message.timestamps.end);
+        });
+      });
+    });
   }
 });
 

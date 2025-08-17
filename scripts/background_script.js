@@ -25,6 +25,8 @@ chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
   chrome.tabs.onRemoved.addListener(function(removedTabId, removeInfo) {
     if (removedTabId === activeTabId) {
       chrome.storage.local.remove('second_time')
+      chrome.storage.local.remove('id')
+      chrome.storage.local.remove('title')
     }
   });
 });
